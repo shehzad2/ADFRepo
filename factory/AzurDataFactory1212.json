@@ -1,0 +1,9 @@
+{
+	"name": "AzurDataFactory1212",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "aa4b2dba-3a52-49c5-923e-9a1e4c5b2e6f",
+		"tenantId": "ea36f35a-45e1-45a2-bcb1-669905b86a49"
+	}
+}

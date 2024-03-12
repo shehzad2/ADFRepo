@@ -1,0 +1,28 @@
+{
+	"name": "EMP PowerQuery",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "DS_BlobStorageEmployee",
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DS_BlobStorageEmployee",
+					"dataset": {
+						"referenceName": "DS_BlobStorageEmployee",
+						"type": "DatasetReference"
+					}
+				},
+				{
+					"name": "DS_BlobStorageDepartment",
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DS_BlobStorageDepartment",
+					"dataset": {
+						"referenceName": "DS_BlobStorageDepartment",
+						"type": "DatasetReference"
+					}
+				}
+			],
+			"script": "section Section1;\r\nshared DS_BlobStorageEmployee = let AdfDoc = AzureStorage.BlobContents(\"https://stblobstorage1212.blob.core.windows.net/raw/employees.csv\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]) in  PromotedHeaders;\r\nshared DS_BlobStorageDepartment = let AdfDoc = AzureStorage.BlobContents(\"https://stblobstorage1212.blob.core.windows.net/raw/departments.csv\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]) in  PromotedHeaders;\r\nshared UserQuery = let Source = #\"DS_BlobStorageEmployee\",\r\n  #\"Merged queries\" = Table.NestedJoin(Source, {\"DEPARTMENT_ID\"}, DS_BlobStorageDepartment, {\"DEPARTMENT_ID\"}, \"DS_BlobStorageDepartment\", JoinKind.LeftOuter),\r\n  #\"Expanded DS_BlobStorageDepartment\" = Table.ExpandTableColumn(#\"Merged queries\", \"DS_BlobStorageDepartment\", {\"DEPARTMENT_ID\", \"DEPARTMENT_NAME\", \"MANAGER_ID\", \"LOCATION_ID\"}, {\"DEPARTMENT_ID.1\", \"DEPARTMENT_NAME\", \"MANAGER_ID.1\", \"LOCATION_ID\"}),\r\n  #\"Removed columns\" = Table.RemoveColumns(#\"Expanded DS_BlobStorageDepartment\", {\"DEPARTMENT_ID.1\", \"MANAGER_ID\"}),\r\n  #\"Changed column type\" = Table.TransformColumnTypes(#\"Removed columns\", {{\"SALARY\", Int64.Type}}),\r\n  #\"Grouped rows\" = Table.Group(#\"Changed column type\", {\"DEPARTMENT_ID\"}, {{\"Total Salary\", each List.Sum([SALARY]), type nullable number}}),\r\n  #\"Renamed columns\" = Table.RenameColumns(#\"Grouped rows\", {{\"DEPARTMENT_ID\", \"DepartmentID\"}}) in #\"Renamed columns\";\r\n",
+			"documentLocale": "en-us"
+		}
+	}
+}
