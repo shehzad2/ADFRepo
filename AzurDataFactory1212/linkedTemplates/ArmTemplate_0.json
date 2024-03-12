@@ -232,69 +232,6 @@
 				"[concat(variables('factoryId'), '/datasets/DS_BlobStorageEmployee')]",
 				"[concat(variables('factoryId'), '/datasets/DS_BlobStorageDepartment')]"
 			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Power Query1",
-						"type": "ExecuteWranglingDataflow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "EMP PowerQuery",
-								"type": "DataFlowReference",
-								"datasetParameters": {
-									"DS_BlobStorageEmployee": {},
-									"DS_BlobStorageDepartment": {},
-									"UserQueryDSDataLakeGen2": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"queries": [
-								{
-									"queryName": "UserQuery",
-									"dataflowSinks": [
-										{
-											"name": "UserQueryDSDataLakeGen2",
-											"dataset": {
-												"referenceName": "DS_DataLakeGen2",
-												"type": "DatasetReference",
-												"parameters": {}
-											},
-											"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['Department.csv'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> UserQueryDSDataLakeGen2"
-										}
-									]
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2024-03-11T20:56:36Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/EMP PowerQuery')]",
-				"[concat(variables('factoryId'), '/datasets/DS_DataLakeGen2')]"
-			]
 		}
 	]
 }
